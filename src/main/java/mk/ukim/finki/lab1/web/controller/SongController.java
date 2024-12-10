@@ -27,8 +27,8 @@ public class SongController {
 
     @GetMapping
     public String getSongsPage(@RequestParam(required = false) String error, Model model) {
-       model.addAttribute("songs", songService.listSongs());
-       model.addAttribute("error", error);
+        model.addAttribute("songs", songService.listSongs());
+        model.addAttribute("error", error);
         return "listSongs";
     }
 

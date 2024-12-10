@@ -1,5 +1,6 @@
 package mk.ukim.finki.lab1.service.impl;
 
+import mk.ukim.finki.lab1.model.Album;
 import mk.ukim.finki.lab1.model.Artist;
 import mk.ukim.finki.lab1.model.Song;
 import mk.ukim.finki.lab1.repository.AlbumRepository;
@@ -7,31 +8,41 @@ import mk.ukim.finki.lab1.repository.ArtistRepository;
 import mk.ukim.finki.lab1.repository.SongRepository;
 import mk.ukim.finki.lab1.service.ArtistService;
 import mk.ukim.finki.lab1.service.SongService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SongServiceImpl implements SongService, ArtistService {
-    private final ArtistRepository artistRepository;
+public class SongServiceImpl implements SongService {
     private final SongRepository songRepository;
     private final AlbumRepository albumRepository;
 
-    public SongServiceImpl(ArtistRepository artistRepository, SongRepository songRepository, AlbumRepository albumRepository) {
-        this.artistRepository = artistRepository;
+    @Autowired
+    public SongServiceImpl(SongRepository songRepository, AlbumRepository albumRepository) {
         this.songRepository = songRepository;
-        this.albumRepository=albumRepository;
+        this.albumRepository = albumRepository;
     }
 
     @Override
-    public List<Artist> listArtists() {
-        return artistRepository.findAll();
+    public Song addSong(String title, String genre, int releaseYear, Long albumId) {
+        Album album = albumRepository.findById(albumId).orElseThrow(() -> new RuntimeException("Album not found"));
+        Song song = new Song(title, genre, releaseYear, album);
+        return songRepository.save(song);
     }
 
     @Override
-    public Artist ArtistfindById(Long id) {
-        return artistRepository.findById(id);
+    public Song editSong(Long id, String title, String genre, int releaseYear, Long albumId) {
+        Song song = songRepository.findById(id).orElseThrow(() -> new RuntimeException("Song not found"));
+        Album album = albumRepository.findById(albumId).orElseThrow(() -> new RuntimeException("Album not found"));
+
+        song.setTitle(title);
+        song.setGenre(genre);
+        song.setReleaseYear(releaseYear);
+        song.setAlbum(album);
+
+        return songRepository.save(song);
     }
 
     @Override
@@ -40,37 +51,29 @@ public class SongServiceImpl implements SongService, ArtistService {
     }
 
     @Override
-    public Artist addArtistToSong(Artist artist, Song song) {
-        return songRepository.addArtistToSong(artist, song);
+    public Song findByTrackId(Long id) {
+        return songRepository.getReferenceById(id);
     }
 
     @Override
-    public Song findByTrackId(Long trackId) {
-        return songRepository.findByTrackId(trackId);
-    }
-
-    @Override
-    public List<Song> searchByText(String text) {
-        return songRepository.searchByText(text);
+    public List<Song> findByAlbumId(Long albumId) {
+        return songRepository.findByAlbumId(albumId);
     }
 
     @Override
     public void deleteSong(Long id) {
-        songRepository.delete(id);
+        songRepository.deleteById(id);
     }
 
     @Override
     public void updateSong(Long id, Song song) {
-        songRepository.update(id, song);
-    }
+        Album album = albumRepository.findById(song.getAlbum().getId()).orElseThrow(() -> new RuntimeException("Album not found"));
 
-    @Override
-    public Song addSong(String title, String genre, int releaseYear, Long album) {
-        return songRepository.addSong(title, genre, releaseYear, albumRepository.getById(album));
-    }
+        song.setTitle(song.getTitle());
+        song.setGenre(song.getGenre());
+        song.setReleaseYear(song.getReleaseYear());
+        song.setAlbum(album);
 
-    @Override
-    public Song editSong(Long id, String title, String genre, int releaseYear, Long album) {
-        return songRepository.editSong(id, title, genre, releaseYear, albumRepository.getById(album));
+        songRepository.save(song);
     }
 }
