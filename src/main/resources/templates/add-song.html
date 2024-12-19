@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Edit Song</title>
 </head>
 <body>
 <div xmlns:th="http://www.thymeleaf.org">
-    <form action="/songs/add" method="POST">
+    <form  th:action="@{/songs/add}"  th:method="POST">
         <input id="id" type="hidden" name="id"
                th:value="(${song} != null ? ${song.getId()} : '')">
         <div>
