@@ -38,8 +38,13 @@ public class SecurityConfig {
                 .password(passwordEncoder().encode("mt"))
                 .roles("USER")
                 .build();
+        UserDetails user_new=User.builder()
+                .username("new_user")
+                .password(passwordEncoder().encode("new"))
+                .roles("MODERATOR")
+                .build();
 
-        return new InMemoryUserDetailsManager(admin, user);
+        return new InMemoryUserDetailsManager(admin, user, user_new);
     }
 
     @Bean
@@ -47,7 +52,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/songs", "/songs/album/**").permitAll()
-                        .requestMatchers("/songs/add", "/songs/edit-form/**", "/songs/delete/**").hasRole("ADMIN")
+                        .requestMatchers( "/songs/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/songs/edit-form/**", "/songs/add").hasAnyRole("ADMIN", "MODERATOR")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

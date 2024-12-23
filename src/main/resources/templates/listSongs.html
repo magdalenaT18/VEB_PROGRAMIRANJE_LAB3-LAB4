@@ -35,13 +35,16 @@
             <td th:text="${song.getReleaseYear()}"></td>
             <td th:text="${song.getAlbum().getName()}"></td>
             <td>
-                <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+                <th:block sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')" >
                     <a th:href="@{'/songs/edit-form/' + ${song.getId()}}">
                         <button>Edit</button>
                     </a>
-                    <form th:action="@{'/songs/delete/' + ${song.getId()}}" th:method="POST" style="display:inline;">
-                        <button type="submit">Delete</button>
-                    </form>
+
+                </th:block>
+                <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+                <form th:action="@{'/songs/delete/' + ${song.getId()}}" th:method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
                 </th:block>
                 <a th:href="@{'/songs/album/' + ${song.getAlbum().getId()}}">
                     <button>View Album Songs</button>
